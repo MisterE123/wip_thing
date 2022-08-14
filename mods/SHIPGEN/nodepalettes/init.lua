@@ -10,9 +10,10 @@ nodepalettes.register_palette_node = function(nodename,mix_function)
     local mix_function = mix_function or function(noises) 
         return noises.large3d
     end
-    nodepalettes.mapgen_nodes[nodename] = {
-        mix = mix_function,
-        cid = minetest.get_content_id(nodename)
+    local cid = minetest.get_content_id(nodename)
+    nodepalettes.mapgen_nodes[cid] = {
+        name = nodename,
+        mix = mix_function,        
     }
 end
 
@@ -34,8 +35,8 @@ minetest.register_on_generated(function(minp, maxp)
 
                 local pos = vector.new(x,y,z)
                 
-                for nodename, def in pairs(nodepalettes.mapgen_nodes) do
-                    if c_data == def.cid then
+                for cid, def in pairs(nodepalettes.mapgen_nodes) do
+                    if c_data[p_pos] == cid then
                         -- set the param2 based on noises defined in the lerp function
                         p_data[p_pos] = math.random(0,254)
                     end
