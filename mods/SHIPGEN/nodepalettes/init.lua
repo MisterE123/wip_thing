@@ -35,13 +35,16 @@ minetest.register_on_generated(function(minp, maxp)
 
                 local pos = vector.new(x,y,z)
                 
-                for cid, def in pairs(nodepalettes.mapgen_nodes) do
-                    if c_data[p_pos] == cid then
-                        -- set the param2 based on noises defined in the lerp function
-                        p_data[p_pos] = math.random(0,254)
-                    end
-                end
+                local cid = c_data[p_pos]
+                local def = nodepalettes.mapgen_nodes[cid]
+                if def then -- if the cid is in the nodepalettes table, we will modify the 
+                    -- param2 data
+                    
+                    local p = math.random(0,254) --get param2 from noises here
 
+                    p_data[p_pos] = p
+
+                end
             end
         end
     end
