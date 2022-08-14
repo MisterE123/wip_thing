@@ -54,7 +54,6 @@ minetest.register_on_generated(function(minp, maxp)
         end
     end
 
-    local p_pos_2d = 0
     for x = minp.x, maxp.x do
         for y = minp.y, maxp.y do
             for z = minp.z, maxp.z do
