@@ -3,15 +3,33 @@ nodepalettes = {}
 -- table to hold all nodes to choose palettes for.
 nodepalettes.mapgen_nodes = {}
 
+-- 3d noises must have 3d in the name
+nodepalettes.nps={
+    large3d = {
+        offset = 0,
+        scale = 1,
+        spread = {x = 500, y = 500, z = 500},
+        seed = 571347,
+        octaves = 3,
+        persistence = 0.63,
+        lacunarity = 2.0,
+        --flags = "defaults, absvalue",
+    },
+}
 
 
-
-nodepalettes.register_palette_node = function(nodename,mix_function)
+-- takes nodename (string), 
+-- noises_used (table of strings (names of noises), 
+-- and mix_function, a function that is given a noises table 
+    -- that includes the noise values of the noise names in noises_used)
+nodepalettes.register_palette_node = function(nodename,noises_used,mix_function)
     local mix_function = mix_function or function(noises) 
-        return noises.large3d
+        return math.remap(noises.large3d, -2, 2, 0, 254) 
     end
+    noises_used = noises_used or {"large3d"}
     local cid = minetest.get_content_id(nodename)
     nodepalettes.mapgen_nodes[cid] = {
+        noises_used = noises_used,
         name = nodename,
         mix = mix_function,        
     }
@@ -26,26 +44,46 @@ minetest.register_on_generated(function(minp, maxp)
     local p_data = vm:get_param2_data()
     local c_data = vm:get_data()
     local area = VoxelArea:new({MinEdge=emin, MaxEdge=emax})
+    local perlin_maps = {}
+    for noisename, np in pairs(nodepalettes.nps) do
+        local perlin = minetest.get_perlin_map(np,vector.new(emax.x-emin.x,emax.y-emin.y,emax.z-emin.z))
+        if string.find(noisename,"3d") then
+            perlin_maps[noisename] = perlin:get_3d_map(minp)
+        else
+            perlin_maps[noisename] = perlin:get_2d_map({x=minp.x,y=minp.z})
+        end
+    end
 
-
+    local p_pos_2d = 0
     for x = minp.x, maxp.x do
-        for y = minp.y, maxp.y do
-            for z = minp.z, maxp.z do
+        for z = minp.z, maxp.z do
+            
+            for y = minp.y, maxp.y do
                 local p_pos = area:index(x, y, z)
 
                 local pos = vector.new(x,y,z)
                 
                 local cid = c_data[p_pos]
                 local def = nodepalettes.mapgen_nodes[cid]
-                if def then -- if the cid is in the nodepalettes table, we will modify the 
-                    -- param2 data
-                    
-                    local p = math.random(0,254) --get param2 from noises here
-
+                
+                if def then -- if the cid is in the nodepalettes table, we will modify the param2 data
+                    local noises = {} -- a table of noise values to pass to the noise mix function
+                    for _,noisename in pairs(def.noises_used) do
+                        local perlin = perlin_maps[noisename]
+                        if string.find(noisename,"3d") then
+                            noises[noisename] = perlin_maps[noisename][p_pos]
+                            minetest.chat_send_all(noises[noisename])
+                        else
+                            noises[noisename] = perlin_maps[noisename][p_pos_2d]
+                        end
+                    end
+                    local p = def.mix(noises) --get param2 from noises here
+                    -- minetest.debug(table.concat(noises,"\n"))
                     p_data[p_pos] = p
 
                 end
             end
+            p_pos_2d = p_pos_2d + 1
         end
     end
 
