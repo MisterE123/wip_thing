@@ -6,7 +6,7 @@ minetest.register_node('base_aliases:stone', {
     groups = { cracky = 10 },
     is_ground_content = true
 })
-nodepalettes.register_palette_node("base_aliases:stone",{"large3d"},function(noises) return math.remap(noises.large3d, -2, 2, 0, 254) end)
+nodepalettes.register_palette_node("base_aliases:stone",{"large3d"},function(noises) return math.remap(noises.large3d, -1, 1, 0, 254) end)
 
 minetest.register_node("base_aliases:water", {
 	description = "Water\nCold and Wet",

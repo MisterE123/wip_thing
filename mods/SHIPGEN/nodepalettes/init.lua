@@ -8,7 +8,7 @@ nodepalettes.nps={
     large3d = {
         offset = 0,
         scale = 1,
-        spread = {x = 500, y = 500, z = 500},
+        spread = {x = 55, y = 55, z = 55},
         seed = 571347,
         octaves = 3,
         persistence = 0.63,
@@ -48,18 +48,19 @@ minetest.register_on_generated(function(minp, maxp)
     for noisename, np in pairs(nodepalettes.nps) do
         local perlin = minetest.get_perlin_map(np,vector.new(emax.x-emin.x,emax.y-emin.y,emax.z-emin.z))
         if string.find(noisename,"3d") then
-            perlin_maps[noisename] = perlin:get_3d_map(minp)
+            perlin_maps[noisename] = perlin:get_3d_map_flat(emin)
         else
-            perlin_maps[noisename] = perlin:get_2d_map({x=minp.x,y=minp.z})
+            perlin_maps[noisename] = perlin:get_2d_map_flat({x=emin.x,y=emin.z})
         end
     end
 
     local p_pos_2d = 0
     for x = minp.x, maxp.x do
-        for z = minp.z, maxp.z do
-            
-            for y = minp.y, maxp.y do
+        for y = minp.y, maxp.y do
+            for z = minp.z, maxp.z do
+
                 local p_pos = area:index(x, y, z)
+                local p_pos_2d = area:index(x,0,z)
 
                 local pos = vector.new(x,y,z)
                 
@@ -72,7 +73,7 @@ minetest.register_on_generated(function(minp, maxp)
                         local perlin = perlin_maps[noisename]
                         if string.find(noisename,"3d") then
                             noises[noisename] = perlin_maps[noisename][p_pos]
-                            minetest.chat_send_all(noises[noisename])
+                            -- minetest.chat_send_all(string.sub(dump(perlin_maps[noisename]),0,2000))
                         else
                             noises[noisename] = perlin_maps[noisename][p_pos_2d]
                         end
