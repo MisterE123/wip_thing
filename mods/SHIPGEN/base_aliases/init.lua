@@ -1,17 +1,47 @@
+-- stone
+
 minetest.register_node('base_aliases:stone', {
     description = 'Stone\nCold and Hard',
     tiles = { 'pix_o.png' },
 	paramtype2 = "color",
+	color = "#243136",
 	palette = "bluestone_palette.png",
     groups = { cracky = 10 },
     is_ground_content = true
 })
 
+
+
 nodepalettes.register_palette_node("base_aliases:stone",{"small3d","flat3d"},function(noises) 
-	local val = math.remap(math.lerp(noises.small3d,noises.flat3d,.8), -2, 2, 1, 254) 
-	if val == 255 then val = 254 end
-	return val
+	return math.remap(math.lerp(noises.small3d,noises.flat3d,.3), -2, 2, 1, 254) 
+
 end)
+
+minetest.register_alias('stone', 'base_aliases:stone')
+minetest.register_alias('mapgen_stone', 'base_aliases:stone')
+
+-- sand
+
+minetest.register_node("base_aliases:sand", {
+	description = "Sand\nLoose and Crumbly",
+	tiles = { 'pix_o.png' },
+	paramtype2 = "color",
+	color = "#958357",
+	palette = "bluestone_palette.png",
+	groups = {crumbly = 8, falling_node = 1, sand = 1},
+})
+
+
+nodepalettes.register_palette_node("base_aliases:sand",{"flat3d"},function(noises) 
+	return math.remap(noises.flat3d, -2, 2, 1, 254) 
+
+end)
+
+minetest.register_alias('sand', 'base_aliases:sand')
+minetest.register_alias('mapgen_sand', 'base_aliases:sand')
+
+
+-- waters
 
 minetest.register_node("base_aliases:water", {
 	description = "Water\nCold and Wet",
@@ -157,14 +187,16 @@ minetest.register_node("base_aliases:riverwater_flowing", {
 })
 
 
-minetest.register_alias('stone', 'base_aliases:stone')
+
 minetest.register_alias('water', 'base_aliases:water')
 minetest.register_alias('flowing_water', 'base_aliases:water_flowing')
 minetest.register_alias('riverwater', 'base_aliases:riverwater')
 minetest.register_alias('flowing_riverwater', 'base_aliases:riverwater_flowing')
 
 
-minetest.register_alias('mapgen_stone', 'base_aliases:stone')
+
+
+
 minetest.register_alias('mapgen_water_source', 'base_aliases:water')
 minetest.register_alias('mapgen_river_water_source', 'base_aliases:riverwater')
 
